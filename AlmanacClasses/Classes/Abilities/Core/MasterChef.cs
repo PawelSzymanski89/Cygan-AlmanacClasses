@@ -27,8 +27,9 @@ public static class MasterChef
         }
     }
     
+    // Valheim 1.0: GetTooltip(item, qualityLevel, crafting, worldLevel, stackOverride, appending)
     [HarmonyPatch(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.GetTooltip), typeof(ItemDrop.ItemData),
-        typeof(int), typeof(bool), typeof(float), typeof(int))]
+        typeof(int), typeof(bool), typeof(float), typeof(int), typeof(bool))]
     private static class AddExtraTooltip
     {
         private static bool Prefix(ItemDrop.ItemData item, int qualityLevel, bool crafting, ref string __result)

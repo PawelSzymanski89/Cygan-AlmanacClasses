@@ -15,7 +15,7 @@ public static class Pickpocket
         if (!instance.TryGetComponent(out CharacterDrop characterDrop)) return;
         int random = Random.Range(0, 101);
         if (random > ability.GetChance(ability.GetLevel())) return;
-        CharacterDrop.DropItems(characterDrop.GenerateDropList(), instance.GetCenterPoint() + characterDrop.transform.TransformVector(characterDrop.m_spawnOffset), 0.5f);
+        CharacterDrop.DropItems(characterDrop.GenerateDropList(), instance.GetCenterPoint() + characterDrop.transform.TransformVector(characterDrop.m_spawnOffset), 0.5f, false);
         Player.m_localPlayer.Message(MessageHud.MessageType.TopLeft, "<color=yellow>$msg_doubleloot</color>");
     }
 }

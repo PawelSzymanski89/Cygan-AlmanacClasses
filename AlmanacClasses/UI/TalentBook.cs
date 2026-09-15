@@ -26,4 +26,5 @@ public class TalentBook : MonoBehaviour, Interactable, Hoverable
     public bool UseItem(Humanoid user, ItemDrop.ItemData item) => false;
     public string GetHoverText() => Localization.instance.Localize(m_name) + "\n" + Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>] $info_open_book");
     public string GetHoverName() => Localization.instance.Localize(m_name);
+    public float GetHoverOffset() => 0f;
 }

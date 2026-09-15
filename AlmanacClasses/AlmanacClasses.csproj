@@ -1,422 +1,84 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- Valheim 1.0 ships Unity 6 assemblies built against netstandard2.1, so the project targets that too. -->
     <Import Project="environment.props" />
     <PropertyGroup>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{4358610B-F3F4-4843-B7AF-98B7BC60DCDE}</ProjectGuid>
-        <OutputType>Library</OutputType>
-        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <TargetFramework>netstandard2.1</TargetFramework>
         <RootNamespace>AlmanacClasses</RootNamespace>
         <AssemblyName>AlmanacClasses</AssemblyName>
-        <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-        <FileAlignment>512</FileAlignment>
-        <LangVersion>10</LangVersion>
+        <LangVersion>12</LangVersion>
         <Nullable>enable</Nullable>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugSymbols>true</DebugSymbols>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <EnableDefaultItems>false</EnableDefaultItems>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <OutputPath>bin\$(Configuration)\</OutputPath>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <DebugType>full</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>bin\Debug\</OutputPath>
-        <DefineConstants>DEBUG;TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <NoWarn>$(NoWarn);MSB3277</NoWarn>
     </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>
-        <OutputPath>bin\Release\</OutputPath>
-        <DefineConstants>TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PropertyGroup Condition="'$(GamePath)' == ''">
+        <GamePath Condition="Exists('$(ValheimGamePath)')">$(ValheimGamePath)</GamePath>
+        <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\Steam\steamapps\common\Valheim</GamePath>
+        <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/.steam/steam/steamapps/common/Valheim</GamePath>
+        <BepInExPath Condition="'$(BepInExPath)' == ''">$(GamePath)\BepInEx</BepInExPath>
+        <CorlibPath Condition="'$(CorlibPath)' == ''">$(GamePath)\valheim_Data\Managed</CorlibPath>
+        <PublicizedAssembliesPath Condition="'$(PublicizedAssembliesPath)' == ''">$(CorlibPath)\publicized_assemblies</PublicizedAssembliesPath>
     </PropertyGroup>
-    <Choose>
-        <When Condition="($(OS) == 'Unix' OR $(OS) == 'OSX') AND $(GamePath) == ''">
-            <PropertyGroup>
-                <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/.steam/steam/steamapps/common/Valheim</GamePath>
-                <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/Library/Application Support/Steam/steamapps/common/Valheim/Contents/MacOS</GamePath>
-                <CorlibPath Condition="!Exists('$(CorlibPath)') AND Exists('$(GamePath)')">$(GamePath)\valheim_Data\Managed</CorlibPath>
-                <CorlibPath Condition="!Exists('$(CorlibPath)')">$(GamePath)/unstripped_corelib</CorlibPath>
-            </PropertyGroup>
-        </When>
-        <When Condition="($(OS) == 'Windows_NT') AND $(GamePath) == ''">
-            <PropertyGroup>
-                <GamePath Condition="!Exists('$(GamePath)')">$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 892970', 'InstallLocation', null, RegistryView.Registry64, RegistryView.Registry32))</GamePath>
-                <_SteamLibraryPath>$([MSBuild]::GetRegistryValueFromView('HKEY_CURRENT_USER\SOFTWARE\Valve\Steam', 'SteamPath', null, RegistryView.Registry32))</_SteamLibraryPath>
-                <GamePath Condition="!Exists('$(GamePath)') AND '$(_SteamLibraryPath)' != ''">$(_SteamLibraryPath)\steamapps\common\Valheim</GamePath>
-                <GamePath Condition="!Exists('$(GamePath)') AND Exists('$(ValheimGamePath)')">$(ValheimGamePath)</GamePath>
-                <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\Steam\steamapps\common\Valheim</GamePath>
-                <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\Steam\steamapps\common\Valheim</GamePath>
-                <GamePath Condition="!Exists('$(GamePath)')">D:\SteamLibrary\steamapps\common\Valheim</GamePath>
-                <BepInExPath Condition="!Exists('$(BepInExPath)')AND Exists('$(GamePath)')">$(GamePath)\BepInEx</BepInExPath>
-                <CorlibPath Condition="!Exists('$(CorlibPath)') AND Exists('$(GamePath)')">$(GamePath)\valheim_Data\Managed</CorlibPath>
-                <CorlibPath Condition="!Exists('$(CorlibPath)') AND Exists('$(GamePath)')">$(GamePath)\unstripped_corlib</CorlibPath>
-                <PublicizedAssembliesPath Condition="!Exists('$(PublicizedAssembliesPath)') AND Exists('$(GamePath)')">$(GamePath)\valheim_Data\Managed\publicized_assemblies</PublicizedAssembliesPath>
-                <AfterTargets Condition="'$(AfterTargets)' == ''">ILRepacker</AfterTargets>
-            </PropertyGroup>
-        </When>
-    </Choose>
     <ItemGroup>
-        <Reference Include="0Harmony">
-            <HintPath>$(BepInExPath)\core\0Harmony.dll</HintPath>
-        </Reference>
-        <Reference Include="AnimationSpeedManager">
-          <HintPath>Libs\AnimationSpeedManager.dll</HintPath>
-        </Reference>
-        <Reference Include="assembly_guiutils">
-            <HintPath>$(PublicizedAssembliesPath)\assembly_guiutils_publicized.dll</HintPath>
-        </Reference>
-        <Reference Include="assembly_utils">
-            <HintPath>$(PublicizedAssembliesPath)\assembly_utils_publicized.dll</HintPath>
-        </Reference>
-        <Reference Include="assembly_valheim">
-            <HintPath>$(PublicizedAssembliesPath)\assembly_valheim_publicized.dll</HintPath>
-        </Reference>
-        <Reference Include="BepInEx">
-            <HintPath>$(BepInExPath)\core\BepInEx.dll</HintPath>
-        </Reference>
-        <Reference Include="gui_framework">
-          <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\gui_framework_publicized.dll</HintPath>
-        </Reference>
-        <Reference Include="ServerSync">
-            <HintPath>Libs\ServerSync.dll</HintPath>
-        </Reference>
-        <Reference Include="Splatform">
-          <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\Splatform_publicized.dll</HintPath>
-        </Reference>
-        <Reference Include="System" />
-        <Reference Include="System.Core" />
-        <Reference Include="System.Data" />
-        <Reference Include="System.Xml" />
-        <Reference Include="UnityEngine">
-            <HintPath>$(CorlibPath)\UnityEngine.dll</HintPath>
-        </Reference>
-        <Reference Include="UnityEngine.AnimationModule">
-          <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
-        </Reference>
-        <Reference Include="UnityEngine.AssetBundleModule">
-            <HintPath>$(CorlibPath)\UnityEngine.AssetBundleModule.dll</HintPath>
-        </Reference>
-        <Reference Include="UnityEngine.CoreModule">
-            <HintPath>$(CorlibPath)\UnityEngine.CoreModule.dll</HintPath>
-        </Reference>
-        <Reference Include="UnityEngine.ImageConversionModule">
-          <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
-        </Reference>
-        <Reference Include="UnityEngine.IMGUIModule">
-            <HintPath>$(CorlibPath)\UnityEngine.IMGUIModule.dll</HintPath>
-        </Reference>
-        <Reference Include="UnityEngine.InputLegacyModule">
-            <HintPath>$(CorlibPath)\UnityEngine.InputLegacyModule.dll</HintPath>
-        </Reference>
-        <Reference Include="UnityEngine.ParticleSystemModule">
-            <HintPath>$(CorlibPath)\UnityEngine.ParticleSystemModule.dll</HintPath>
-        </Reference>
-        <Reference Include="UnityEngine.PhysicsModule">
-          <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
-        </Reference>
-        <Reference Include="UnityEngine.TextRenderingModule">
-          <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
-        </Reference>
-        <Reference Include="UnityEngine.UI">
-            <HintPath>$(CorlibPath)\UnityEngine.UI.dll</HintPath>
-        </Reference>
-        <Reference Include="Unity.TextMeshPro">
-            <HintPath>$(GamePath)\valheim_Data\Managed\Unity.TextMeshPro.dll</HintPath>
-        </Reference>
+        <Reference Include="0Harmony"><HintPath>$(BepInExPath)\core\0Harmony.dll</HintPath></Reference>
+        <Reference Include="BepInEx"><HintPath>$(BepInExPath)\core\BepInEx.dll</HintPath></Reference>
+        <Reference Include="AnimationSpeedManager"><HintPath>Libs\AnimationSpeedManager.dll</HintPath></Reference>
+        <Reference Include="assembly_guiutils"><HintPath>$(PublicizedAssembliesPath)\assembly_guiutils_publicized.dll</HintPath></Reference>
+        <Reference Include="assembly_utils"><HintPath>$(PublicizedAssembliesPath)\assembly_utils_publicized.dll</HintPath></Reference>
+        <Reference Include="assembly_valheim"><HintPath>$(PublicizedAssembliesPath)\assembly_valheim_publicized.dll</HintPath></Reference>
+        <Reference Include="gui_framework"><HintPath>$(PublicizedAssembliesPath)\gui_framework_publicized.dll</HintPath></Reference>
+        <Reference Include="Splatform"><HintPath>$(PublicizedAssembliesPath)\Splatform_publicized.dll</HintPath></Reference>
+        <Reference Include="Unity.TextMeshPro"><HintPath>$(CorlibPath)\Unity.TextMeshPro.dll</HintPath></Reference>
+        <Reference Include="UnityEngine"><HintPath>$(CorlibPath)\UnityEngine.dll</HintPath></Reference>
+        <Reference Include="UnityEngine.AnimationModule"><HintPath>$(CorlibPath)\UnityEngine.AnimationModule.dll</HintPath></Reference>
+        <Reference Include="UnityEngine.AssetBundleModule"><HintPath>$(CorlibPath)\UnityEngine.AssetBundleModule.dll</HintPath></Reference>
+        <Reference Include="UnityEngine.CoreModule"><HintPath>$(CorlibPath)\UnityEngine.CoreModule.dll</HintPath></Reference>
+        <Reference Include="UnityEngine.ImageConversionModule"><HintPath>$(CorlibPath)\UnityEngine.ImageConversionModule.dll</HintPath></Reference>
+        <Reference Include="UnityEngine.IMGUIModule"><HintPath>$(CorlibPath)\UnityEngine.IMGUIModule.dll</HintPath></Reference>
+        <Reference Include="UnityEngine.InputLegacyModule"><HintPath>$(CorlibPath)\UnityEngine.InputLegacyModule.dll</HintPath></Reference>
+        <Reference Include="UnityEngine.ParticleSystemModule"><HintPath>$(CorlibPath)\UnityEngine.ParticleSystemModule.dll</HintPath></Reference>
+        <Reference Include="UnityEngine.PhysicsModule"><HintPath>$(CorlibPath)\UnityEngine.PhysicsModule.dll</HintPath></Reference>
+        <Reference Include="UnityEngine.TextRenderingModule"><HintPath>$(CorlibPath)\UnityEngine.TextRenderingModule.dll</HintPath></Reference>
+        <Reference Include="UnityEngine.UI"><HintPath>$(CorlibPath)\UnityEngine.UI.dll</HintPath></Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="API\API.cs" />
-        <Compile Include="Classes\Abilities\AbilityManager.cs" />
-        <Compile Include="Classes\Abilities\Bard\SE_SongOfAttrition.cs" />
-        <Compile Include="Classes\Abilities\Bard\SE_SongOfDamage.cs" />
-        <Compile Include="Classes\Abilities\Bard\SE_SongOfHealing.cs" />
-        <Compile Include="Classes\Abilities\Bard\SE_SongOfSpeed.cs" />
-        <Compile Include="Classes\Abilities\Bard\SE_SongOfVitality.cs" />
-        <Compile Include="Classes\Abilities\ClassUtilities.cs" />
-        <Compile Include="Classes\Abilities\Core\AirBender.cs" />
-        <Compile Include="Classes\Abilities\Core\Berzerker.cs" />
-        <Compile Include="Classes\Abilities\Core\Comfort.cs" />
-        <Compile Include="Classes\Abilities\Core\Forager.cs" />
-        <Compile Include="Classes\Abilities\Core\MasterChef.cs" />
-        <Compile Include="Classes\Abilities\Core\Pickpocket.cs" />
-        <Compile Include="Classes\Abilities\Core\RainProof.cs" />
-        <Compile Include="Classes\Abilities\Core\SE_Characteristics.cs" />
-        <Compile Include="Classes\Abilities\Core\SE_Enlightened.cs" />
-        <Compile Include="Classes\Abilities\Core\SE_ExperienceOrb.cs" />
-        <Compile Include="Classes\Abilities\Core\SE_PackMule.cs" />
-        <Compile Include="Classes\Abilities\Core\SE_Resourceful.cs" />
-        <Compile Include="Classes\Abilities\Core\SE_Sailor.cs" />
-        <Compile Include="Classes\Abilities\Core\SE_TreasureHunter.cs" />
-        <Compile Include="Classes\Abilities\Core\Trader.cs" />
-        <Compile Include="Classes\Abilities\Friendly.cs" />
-        <Compile Include="Classes\Abilities\Ranger\RangerSpawn.cs" />
-        <Compile Include="Classes\Abilities\Ranger\RangerTrap.cs" />
-        <Compile Include="Classes\Abilities\Ranger\SE_ChainShot.cs" />
-        <Compile Include="Classes\Abilities\Ranger\SE_Hunter.cs" />
-        <Compile Include="Classes\Abilities\Ranger\SE_LuckyShot.cs" />
-        <Compile Include="Classes\Abilities\Ranger\SE_QuickShot.cs" />
-        <Compile Include="Classes\Abilities\Ranger\SE_SlowDown.cs" />
-        <Compile Include="Classes\Abilities\Rogue\SE_Bleed.cs" />
-        <Compile Include="Classes\Abilities\Rogue\SE_RogueBackstab.cs" />
-        <Compile Include="Classes\Abilities\Rogue\SE_RogueBleed.cs" />
-        <Compile Include="Classes\Abilities\Rogue\SE_RogueReflect.cs" />
-        <Compile Include="Classes\Abilities\Rogue\SE_RogueSpeed.cs" />
-        <Compile Include="Classes\Abilities\Rogue\SE_RogueStamina.cs" />
-        <Compile Include="Classes\Abilities\Sage\CallOfLightning.cs" />
-        <Compile Include="Classes\Abilities\Sage\Fireball.cs" />
-        <Compile Include="Classes\Abilities\Sage\GoblinBeam.cs" />
-        <Compile Include="Classes\Abilities\Sage\IceBreath.cs" />
-        <Compile Include="Classes\Abilities\Sage\MeteorStrike.cs" />
-        <Compile Include="Classes\Abilities\Sage\Smite.cs" />
-        <Compile Include="Classes\Abilities\Sage\StoneThrow.cs" />
-        <Compile Include="Classes\Abilities\Shaman\RootBeam.cs" />
-        <Compile Include="Classes\Abilities\Shaman\SE_Leech.cs" />
-        <Compile Include="Classes\Abilities\Shaman\SE_ShamanRegeneration.cs" />
-        <Compile Include="Classes\Abilities\Shaman\ShamanSpawn.cs" />
-        <Compile Include="Classes\Abilities\Shaman\ShamanHeal.cs" />
-        <Compile Include="Classes\Abilities\Shaman\SE_ShamanShield.cs" />
-        <Compile Include="Classes\Abilities\SpawnSystem.cs" />
-        <Compile Include="Classes\Abilities\Warrior\SE_BattleFury.cs" />
-        <Compile Include="Classes\Abilities\Warrior\SE_DualWield.cs" />
-        <Compile Include="Classes\Abilities\Warrior\SE_MonkeyWrench.cs" />
-        <Compile Include="Classes\Abilities\Warrior\SE_Survivor.cs" />
-        <Compile Include="Classes\Abilities\Warrior\SE_WarriorResistance.cs" />
-        <Compile Include="Classes\Abilities\Warrior\SE_WarriorStrength.cs" />
-        <Compile Include="Classes\Abilities\Warrior\SE_WarriorVitality.cs" />
-        <Compile Include="Classes\CharacteristicManager.cs" />
-        <Compile Include="Classes\ExperienceManager.cs" />
-        <Compile Include="Classes\PlayerManager.cs" />
-        <Compile Include="Classes\StaticExperience.cs" />
-        <Compile Include="Classes\TalentManager.cs" />
-        <Compile Include="Classes\Talents.cs" />
-        <Compile Include="FileSystem\FilePaths.cs" />
-        <Compile Include="FileSystem\Watcher.cs" />
-        <Compile Include="LoadAssets\AltarEffectFade.cs" />
-        <Compile Include="LoadAssets\AnimationReplacer.cs" />
-        <Compile Include="LoadAssets\VFX.cs" />
-        <Compile Include="LoadAssets\LoadPieces.cs" />
-        <Compile Include="Managers\AnimationManager.cs" />
-        <Compile Include="Managers\CommandsManager.cs" />
-        <Compile Include="Managers\DisplayText.cs" />
-        <Compile Include="Managers\FontManager.cs" />
-        <Compile Include="Managers\Helpers.cs" />
-        <Compile Include="Managers\LocalizationManager.cs" />
-        <Compile Include="Managers\MaterialReplacer.cs" />
-        <Compile Include="Managers\PieceManager.cs" />
-        <Compile Include="Managers\RavenTutorialManager.cs" />
-        <Compile Include="Managers\Snapshot.cs" />
-        <Compile Include="Managers\SpriteManager.cs" />
-        <Compile Include="Managers\StatusEffectManager.cs" />
-        <Compile Include="Patches\ButtonPatches.cs" />
-        <Compile Include="Patches\CharacterPatches.cs" />
-        <Compile Include="Patches\GamePatches.cs" />
-        <Compile Include="Patches\InventoryGUIPatches.cs" />
-        <Compile Include="Patches\MenuPatches.cs" />
-        <Compile Include="Patches\ObjectDBPatches.cs" />
-        <Compile Include="Patches\PlayerControllerPatches.cs" />
-        <Compile Include="Patches\PlayerPatches.cs" />
-        <Compile Include="Patches\StoreGUIPatches.cs" />
-        <Compile Include="Patches\TextsDialoguePatches.cs" />
-        <Compile Include="Plugin.cs" />
-        <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="UI\CharacteristicButtons.cs" />
-        <Compile Include="UI\CharacteristicPanel.cs" />
-        <Compile Include="UI\ExperienceBar.cs" />
-        <Compile Include="UI\FillLines.cs" />
-        <Compile Include="UI\HoverCharacteristic.cs" />
-        <Compile Include="UI\InventoryButton.cs" />
-        <Compile Include="UI\LoadUI.cs" />
-        <Compile Include="UI\PassiveBar.cs" />
-        <Compile Include="UI\PassiveButton.cs" />
-        <Compile Include="UI\Prestige.cs" />
-        <Compile Include="UI\SkillTree.cs" />
-        <Compile Include="UI\SpellBook.cs" />
-        <Compile Include="UI\SpellInfo.cs" />
-        <Compile Include="UI\SpellInventory.cs" />
-        <Compile Include="UI\SpellSlot.cs" />
-        <Compile Include="UI\TalentBook.cs" />
-        <Compile Include="UI\TalentButton.cs" />
-        <Compile Include="UI\UIManager.cs" />
-        <Compile Include="VersionHandshake.cs" />
-    </ItemGroup>
-    <ItemGroup>
-        <Content Include=".gitignore" />
-        <Content Include="assets\AlmanacClassesPackage.unitypackage" />
+        <Compile Include="**\*.cs" Exclude="bin\**;obj\**" />
         <EmbeddedResource Include="assets\classesbundle" />
-        <Content Include="environment.props" />
-        <EmbeddedResource Include="Icons\monkeywrench_icon.png" />
-        <EmbeddedResource Include="Icons\Classes\Warrior\SE_WarriorVitality_Transparent.png" />
-        <EmbeddedResource Include="Icons\Classes\Warrior\SE_DualWield.png" />
-        <EmbeddedResource Include="Icons\Classes\Warrior\SE_MonkeyWrench.png" />
-        <EmbeddedResource Include="Icons\Classes\Warrior\SE_WarriorResistance.png" />
-        <EmbeddedResource Include="Icons\Classes\Warrior\SE_WarriorResistance_Transparent.png" />
-        <EmbeddedResource Include="Icons\Classes\Warrior\SE_WarriorStrength.png" />
-        <EmbeddedResource Include="Icons\Classes\Warrior\SE_WarriorStrength_Transparent.png" />
-        <EmbeddedResource Include="Icons\Classes\Warrior\SE_WarriorVitality.png" />
-        <EmbeddedResource Include="Icons\Classes\Rogue\SE_RogueBackstab.png" />
-        <EmbeddedResource Include="Icons\Classes\Rogue\SE_RogueBleed.png" />
-        <EmbeddedResource Include="Icons\Classes\Rogue\SE_RogueReflect.png" />
-        <EmbeddedResource Include="Icons\Classes\Rogue\SE_RogueSpeed.png" />
-        <EmbeddedResource Include="Icons\Classes\Rogue\SE_RogueStamina.png" />
-        <EmbeddedResource Include="Icons\Classes\Shaman\RootBeam.png" />
-        <EmbeddedResource Include="Icons\Classes\Shaman\SE_ShamanRegeneration.png" />
-        <EmbeddedResource Include="Icons\Classes\Shaman\SE_ShamanShield.png" />
-        <EmbeddedResource Include="Icons\Classes\Shaman\ShamanHeal.png" />
-        <EmbeddedResource Include="Icons\Classes\Shaman\ShamanSpawn.png" />
-        <EmbeddedResource Include="Icons\Classes\Sage\BoulderStrike.png" />
-        <EmbeddedResource Include="Icons\Classes\Sage\CallOfLightning.png" />
-        <EmbeddedResource Include="Icons\Classes\Sage\Fireball.png" />
-        <EmbeddedResource Include="Icons\Classes\Sage\GoblinBeam.png" />
-        <EmbeddedResource Include="Icons\Classes\Sage\IceBreath.png" />
-        <EmbeddedResource Include="Icons\Classes\Sage\MeteorStrike.png" />
-        <EmbeddedResource Include="Icons\Classes\Ranger\RangerSpawn.png" />
-        <EmbeddedResource Include="Icons\Classes\Ranger\RangerTrap.png" />
-        <EmbeddedResource Include="Icons\Classes\Ranger\SE_ChainShot.png" />
-        <EmbeddedResource Include="Icons\Classes\Ranger\SE_Hunter.png" />
-        <EmbeddedResource Include="Icons\Classes\Ranger\SE_LuckyShot.png" />
-        <EmbeddedResource Include="Icons\Classes\Ranger\SE_QuickShot.png" />
-        <EmbeddedResource Include="Icons\Classes\Core\AirBender.png" />
-        <EmbeddedResource Include="Icons\Classes\Core\Berzerker.png" />
-        <EmbeddedResource Include="Icons\Classes\Core\Comfort.png" />
-        <EmbeddedResource Include="Icons\Classes\Core\Forager.png" />
-        <EmbeddedResource Include="Icons\Classes\Core\Looter.png" />
-        <EmbeddedResource Include="Icons\Classes\Core\MasterChef.png" />
-        <EmbeddedResource Include="Icons\Classes\Core\PackMule.png" />
-        <EmbeddedResource Include="Icons\Classes\Core\SE_Resourceful.png" />
-        <EmbeddedResource Include="Icons\Classes\Core\SE_Sailor.png" />
-        <EmbeddedResource Include="Icons\Classes\Core\SE_TreasureHunter.png" />
-        <EmbeddedResource Include="Icons\Classes\Core\Trader.png" />
-        <EmbeddedResource Include="Icons\Classes\Bard\SongOfDamage.png" />
-        <EmbeddedResource Include="Icons\Classes\Bard\SongOfHealing.png" />
-        <EmbeddedResource Include="Icons\Classes\Bard\SongOfSpeed.png" />
-        <EmbeddedResource Include="Icons\Classes\Bard\SongOfSpirit.png" />
-        <EmbeddedResource Include="Icons\Classes\Bard\SongOfVitality.png" />
-        <Content Include="ILRepack.targets" />
-        <Content Include="Libs\AnimationSpeedManager.dll" />
-        <EmbeddedResource Include="translations\English.yml" />
-        <EmbeddedResource Include="translations\Korean.yml" />
-        <EmbeddedResource Include="translations\Portuguese_Brazilian.yml" />
-        <Content Include="Libs\ServerSync.dll" />
-        <Content Include="Tutorials\README.md" />
-        <Content Include="UpdateManifest.ps1" />
-    </ItemGroup>
-    <ItemGroup>
-        <None Include="App.config" />
+        <EmbeddedResource Include="Icons\**\*.png" />
+        <EmbeddedResource Include="translations\*.yml" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.37">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="YamlDotNet" Version="16.3.0" />
     </ItemGroup>
-    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-         Other similar extension points exist, see Microsoft.Common.targets.
-    <Target Name="BeforeBuild">
-    </Target>
-    <Target Name="AfterBuild">
-    </Target>
-    -->
-    <UsingTask AssemblyFile="KeyManager.dll" TaskName="KeyManager.Seal" Condition="'$(AfterTargets)' == 'KeyManager'" />
-    <Target Name="KeyManager" AfterTargets="ILRepack" Condition="'$(AfterTargets)' == 'KeyManager'">
-        <Seal DLL="$(TargetPath)" />
-    </Target>
-    <Target Name="GetAssemblyVersion" AfterTargets="$(AfterTargets)">
-        <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
-            <Output TaskParameter="Assemblies" ItemName="Targets" />
-        </GetAssemblyIdentity>
-        <ItemGroup>
-            <AssemblyVersions Include="@(Targets->'%(Version)')" />
-        </ItemGroup>
-        <PropertyGroup>
-            <AssemblyVersion>%(AssemblyVersions.Identity)</AssemblyVersion>
-            <Major>$(AssemblyVersion.Split('.')[0])</Major>
-            <Minor>$(AssemblyVersion.Split('.')[1])</Minor>
-            <Patch>$(AssemblyVersion.Split('.')[2])</Patch>
-            <PackageName>$(AssemblyName)_v$(Major).$(Minor).$(Patch)</PackageName>
-            <PackageVersion>$(Major).$(Minor).$(Patch)</PackageVersion>
-            <VersionString>$(Major).$(Minor).$(Patch)</VersionString>
-            <PackageDir>$(ProjectDir)\Thunderstore\$(PackageName)</PackageDir>
-        </PropertyGroup>
-    </Target>
-    <Target Name="CopyOutputDLL" AfterTargets="GetAssemblyVersion">
-        <Error Text="DLL not found in target directory." Condition="!Exists('$(TargetDir)$(AssemblyName).dll')" />
+    <Target Name="CopyOutputDLL" AfterTargets="ILRepacker" Condition="Exists('$(CopyOutputDLLPath)')">
         <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="$(CopyOutputDLLPath)" OverwriteReadOnlyFiles="true" />
         <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="$(CopyOutputDLLPath2)" OverwriteReadOnlyFiles="true" Condition="Exists('$(CopyOutputDLLPath2)')" />
         <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="$(CopyOutputDLLPath3)" OverwriteReadOnlyFiles="true" Condition="Exists('$(CopyOutputDLLPath3)')" />
     </Target>
-    <Target Name="CopyReadMeToTSFolder" AfterTargets="CopyOutputDLL" Condition=" ('$(Configuration)|$(Platform)' == 'Release|AnyCPU') And ('$(OS)' == 'Windows_NT') ">
-        <Warning Text="README.md not found in project directory. A default README.md file will be created for the Thunderstore package" Condition="!Exists('README.md')" />
-        <WriteLinesToFile File="README.md" Lines="Default Readme file from one of Azumatt's Templates. Replace this with actual content." Overwrite="false" Condition="!Exists('README.md')" />
-        <Copy SourceFiles="README.md" DestinationFolder="$(PackageDir)" OverwriteReadOnlyFiles="true" />
-        <Copy SourceFiles="README.md" DestinationFolder="$(ProjectDir)\Thunderstore" OverwriteReadOnlyFiles="true" />
-    </Target>
-    <UsingTask TaskName="WriteManifestFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
-        <ParameterGroup>
-            <ManifestFile ParameterType="System.String" Required="true" />
-            <AssemblyName ParameterType="System.String" Required="true" />
-        </ParameterGroup>
-        <Task>
-            <Code Type="Fragment" Language="cs">
-                <![CDATA[
-if (!System.IO.File.Exists(ManifestFile))
-{
-string content = @"{
-  ""name"": """ + AssemblyName + @""",
-  ""version_number"": ""1.0.0"",
-  ""website_url"": ""https://discord.gg/pdHgy6Bsng"",
-  ""description"": ""Your mod description goes here. Do not forget to replace the icon.png file with your own. Must be 256x256. Your Readme.md file will be copied from the one in your project folder."",
-  ""dependencies"": [
-    ""denikson-BepInExPack_Valheim-5.4.2105""
-]
-}";
-System.IO.File.WriteAllText(ManifestFile, content);
-}
-]]>
-
-            </Code>
-        </Task>
-    </UsingTask>
-    <Target Name="UpdateManifestVersion" AfterTargets="CopyReadmeToTSFolder" Condition=" ('$(Configuration)|$(Platform)' == 'Release|AnyCPU') And ('$(OS)' == 'Windows_NT') ">
-        <WriteManifestFile ManifestFile="$(ProjectDir)Thunderstore\manifest.json" AssemblyName="$(AssemblyName)" />
+    <Target Name="MakeThunderstorePackage" AfterTargets="CopyOutputDLL" Condition="'$(Configuration)' == 'Release' AND Exists('$(ProjectDir)Thunderstore\manifest.json')">
+        <GetAssemblyIdentity AssemblyFiles="$(TargetPath)"><Output TaskParameter="Assemblies" ItemName="Targets" /></GetAssemblyIdentity>
+        <PropertyGroup>
+            <AssemblyVersion>%(Targets.Version)</AssemblyVersion>
+            <PackageVersion>$(AssemblyVersion.Split('.')[0]).$(AssemblyVersion.Split('.')[1]).$(AssemblyVersion.Split('.')[2])</PackageVersion>
+            <PackageDir>$(ProjectDir)Thunderstore\$(AssemblyName)_v$(PackageVersion)</PackageDir>
+        </PropertyGroup>
+        <Exec Command="powershell.exe -ExecutionPolicy Bypass -Command &quot;&amp; { &amp; '$(ProjectDir)UpdateManifest.ps1' -manifestFile '$(ProjectDir)Thunderstore\manifest.json' -versionString '$(PackageVersion)' }&quot;" Condition="'$(OS)' == 'Windows_NT'" />
+        <Copy SourceFiles="README.md" DestinationFolder="$(ProjectDir)Thunderstore" Condition="Exists('README.md')" />
         <ItemGroup>
-            <ManifestFile Include="$(ProjectDir)Thunderstore\manifest.json" />
-        </ItemGroup>
-        <Message Text="ManifestFile is @(ManifestFile)" />
-        <Message Text="Updating version number in Thunderstore\manifest.json" Condition="Exists(@(ManifestFile))" />
-        <Exec Command="powershell.exe -ExecutionPolicy Bypass -Command &quot;&amp; { &amp; '$(ProjectDir)UpdateManifest.ps1' -manifestFile '@(ManifestFile)' -versionString '$(PackageVersion)' }&quot;" />
-    </Target>
-    <Target Name="MakeThunderstorePackage" AfterTargets="UpdateManifestVersion" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <Error Text="manifest.json not found in Thunderstore directory." Condition="!Exists('$(ProjectDir)\Thunderstore\manifest.json')" />
-        <Error Text="icon.png not found in Thunderstore directory. Please note that Thunderstore requires this image to be 256x256 in dimension" Condition="!Exists('$(ProjectDir)\Thunderstore\icon.png')" />
-        <ItemGroup>
-            <PackageFiles Include="$(TargetDir)$(AssemblyName).dll" Condition="Exists('$(TargetDir)$(AssemblyName).dll')" />
-            <PackageFiles Include="$(ProjectDir)\Thunderstore\CHANGELOG.md" Condition="Exists('$(ProjectDir)\Thunderstore\CHANGELOG.md')" />
-            <PackageFiles Include="$(ProjectDir)\Thunderstore\manifest.json" Condition="Exists('$(ProjectDir)\Thunderstore\manifest.json')" />
-            <PackageFiles Include="$(ProjectDir)\Thunderstore\icon.png" Condition="Exists('$(ProjectDir)\Thunderstore\icon.png')" />
+            <PackageFiles Include="$(TargetDir)$(AssemblyName).dll;$(ProjectDir)Thunderstore\README.md;$(ProjectDir)Thunderstore\CHANGELOG.md;$(ProjectDir)Thunderstore\manifest.json;$(ProjectDir)Thunderstore\icon.png" />
         </ItemGroup>
         <MakeDir Directories="$(PackageDir)" />
-        <Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(PackageDir)" />
-        <ZipDirectory SourceDirectory="$(PackageDir)" DestinationFile="Thunderstore\$(PackageName).zip" Overwrite="true" />
+        <Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(PackageDir)" Condition="Exists('%(PackageFiles.FullPath)')" />
+        <ZipDirectory SourceDirectory="$(PackageDir)" DestinationFile="$(ProjectDir)Thunderstore\$(AssemblyName)_v$(PackageVersion).zip" Overwrite="true" />
         <RemoveDir Directories="$(PackageDir)" />
     </Target>
-    <Target Name="MakeNexusPackage" AfterTargets="MakeThunderstorePackage" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <MakeDir Directories="$(ProjectDir)\Nexus" />
-        <ItemGroup>
-            <NexusPackageFiles Include="$(TargetDir)$(AssemblyName).dll;" />
-        </ItemGroup>
-        <MakeDir Directories="$(PackageDir)" />
-        <Copy SourceFiles="@(NexusPackageFiles)" DestinationFolder="$(PackageDir)" />
-        <ZipDirectory SourceDirectory="$(PackageDir)" DestinationFile="Nexus\$(PackageName).zip" Overwrite="true" />
-        <RemoveDir Directories="$(PackageDir)" />
-    </Target>
-
 </Project>

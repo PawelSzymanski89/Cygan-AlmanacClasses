@@ -8,13 +8,14 @@ public static class Trader
     [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.IsTeleportable))]
     private static class Player_IsTeleportable_Postfix 
     {
-        private static void Postfix(Humanoid __instance, ref bool __result)
+        private static void Postfix(Humanoid __instance, bool __0, ref bool __result)
         {
             if (__result) return;
             if (!PlayerManager.m_playerTalents.TryGetValue("Trader", out Talent talent)) return;
             if (!talent.m_passiveActive) return;
             Inventory? inventory = __instance.GetInventory();
-            if (inventory.IsTeleportable()) return;
+            // Valheim 1.0: IsTeleportable(bool allowAllItems) - __0 is the flag the game passed in
+            if (inventory.IsTeleportable(__0)) return;
 
             foreach (ItemDrop.ItemData itemData in inventory.m_inventory)
             {
