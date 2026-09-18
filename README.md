@@ -1,3 +1,19 @@
+> ## Unofficial Valheim 1.0 compatibility fork
+>
+> This is **not** the author's release. **AlmanacClassSystem is by RustyMods** - original:
+> https://thunderstore.io/c/valheim/p/RustyMods/AlmanacClassSystem/ - all credit goes to them; the
+> description below is theirs.
+>
+> The mod was built for Valheim before 1.0 and no longer compiles or loads. The `valheim-1.0` branch
+> rebuilds it for Valheim 1.0 (Unity 6) with no gameplay changes; those fixes are offered upstream as
+> [RustyMods/AlmanacClasses#31](https://github.com/RustyMods/AlmanacClasses/pull/31). The ready
+> Thunderstore package is `Cygan/AlmanacClassSystem`; the `thunderstore-cygan` branch describes it.
+>
+> Once an official 1.0 build exists, use that and drop this fork. RustyMods: if you want this taken
+> down, open an issue and it will be removed the same day.
+
+---
+
 # Almanac Classes
 Plugin adds a node based progression system that unlocks through experience gained by killing monsters and playing the game.
 
